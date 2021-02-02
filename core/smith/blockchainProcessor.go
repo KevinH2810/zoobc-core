@@ -51,6 +51,8 @@ package smith
 
 import (
 	"fmt"
+	"github.com/zoobc/zoobc-core/common/feedbacksystem"
+
 	"time"
 
 	"github.com/zoobc/zoobc-core/common/chaintype"
@@ -85,6 +87,7 @@ type (
 		smithError              error
 		BlockchainStatusService service.BlockchainStatusServiceInterface
 		NodeRegistrationService service.NodeRegistrationServiceInterface
+		AntiSpamStrategy        feedbacksystem.FeedbackStrategyInterface
 	}
 )
 
@@ -101,6 +104,7 @@ func NewBlockchainProcessor(
 	blockchainStatusService service.BlockchainStatusServiceInterface,
 	nodeRegistrationService service.NodeRegistrationServiceInterface,
 	blockSmithStrategy strategy.BlocksmithStrategyInterface,
+	antiSpamStrategy feedbacksystem.FeedbackStrategyInterface,
 ) *BlockchainProcessor {
 	return &BlockchainProcessor{
 		ChainType:               ct,
@@ -111,6 +115,7 @@ func NewBlockchainProcessor(
 		NodeRegistrationService: nodeRegistrationService,
 		BlockSmithStrategy:      blockSmithStrategy,
 		LastBlocksmithIndex:     -1,
+		AntiSpamStrategy:        antiSpamStrategy,
 	}
 }
 
@@ -273,6 +278,13 @@ func (bp *BlockchainProcessor) Start(sleepPeriod time.Duration) {
 				return
 			case <-ticker.C:
 				// when starting a node, do not start smithing until the main blocks have been fully downloaded
+				if limitReached, limitLevel := bp.AntiSpamStrategy.IsCPULimitReached(constant.FeedbackCPUMinSamples); limitReached {
+					if limitLevel == constant.FeedbackLimitHigh {
+						bp.Logger.Error("Smithing inhibited due to high cpu usage")
+					}
+					continue
+				}
+
 				if !bp.BlockchainStatusService.IsSmithingLocked() && bp.BlockchainStatusService.IsBlocksmith() {
 					err := bp.StartSmithing()
 					if err != nil {

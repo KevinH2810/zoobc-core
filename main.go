@@ -986,6 +986,7 @@ func startMainchain() {
 			blockchainStatusService,
 			nodeRegistrationService,
 			blocksmithStrategyMain,
+			feedbackStrategy,
 		)
 		mainchainProcessor.Start(sleepPeriod)
 	}
@@ -1069,6 +1070,7 @@ func startSpinechain() {
 			blockchainStatusService,
 			nodeRegistrationService,
 			blocksmithStrategySpine,
+			feedbackStrategy,
 		)
 		spinechainProcessor.Start(sleepPeriod)
 	}

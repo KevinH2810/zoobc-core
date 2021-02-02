@@ -51,6 +51,7 @@ package block
 
 import (
 	"fmt"
+	"github.com/zoobc/zoobc-core/common/feedbacksystem"
 	"github.com/zoobc/zoobc-core/common/queue"
 	"strings"
 	"time"
@@ -314,6 +315,7 @@ func generateBlocks(numberOfBlocks int, blocksmithSecretPhrase, outputPath strin
 		&mockBlockchainStatusService{},
 		nodeRegistrationService,
 		blockSmithStrategy,
+		feedbacksystem.NewDummyFeedbackStrategy(),
 	)
 	startTime := time.Now().UnixNano() / 1e6
 	fmt.Printf("generating %d blocks\n", numberOfBlocks)
