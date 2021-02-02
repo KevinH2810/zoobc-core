@@ -279,7 +279,7 @@ func (bp *BlockchainProcessor) Start(sleepPeriod time.Duration) {
 			case <-ticker.C:
 				// when starting a node, do not start smithing until the main blocks have been fully downloaded
 				if limitReached, limitLevel := bp.AntiSpamStrategy.IsCPULimitReached(constant.FeedbackCPUMinSamples); limitReached {
-					if limitLevel == constant.FeedbackLimitHigh {
+					if limitLevel == constant.FeedbackLimitHigh || limitLevel == constant.FeedbackLimitCritical {
 						bp.Logger.Error("Smithing inhibited due to high cpu usage")
 					}
 					continue
