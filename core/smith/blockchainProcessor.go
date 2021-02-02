@@ -281,8 +281,9 @@ func (bp *BlockchainProcessor) Start(sleepPeriod time.Duration) {
 				if limitReached, limitLevel := bp.AntiSpamStrategy.IsCPULimitReached(constant.FeedbackCPUMinSamples); limitReached {
 					if limitLevel == constant.FeedbackLimitHigh || limitLevel == constant.FeedbackLimitCritical {
 						bp.Logger.Error("Smithing inhibited due to high cpu usage")
+						continue
 					}
-					continue
+
 				}
 
 				if !bp.BlockchainStatusService.IsSmithingLocked() && bp.BlockchainStatusService.IsBlocksmith() {
